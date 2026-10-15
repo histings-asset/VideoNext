@@ -1,0 +1,168 @@
+# VideoNext — 悬浮媒体控制器
+
+一个极简的 Android 悬浮球，用最少的操作控制音乐 / 视频的播放。
+
+## 功能
+
+- **收起状态**：屏幕上一个小圆，**单击 = 下一首**（可在设置页改成 播放/暂停 或 上一首），
+  **长按 = 展开波轮**
+- **展开状态**：iPod 式圆形波轮。环上四个位置**没有各自的圆底**，符号直接贴在盘面上
+  - 上 = 设置 · 右 = 下一首 · 下 = 播放/暂停 · 左 = 上一首
+  - **中心是一个没有图标的圆键**（对应 iPod 的 Select 位），靠比盘面亮／暗一档的色差显示存在：
+    单击 = 收起回小圆，**长按 1 秒 = 退出 App**。按到 0.6 秒时会先震一下预告，
+    感觉到震动就松手，不会误退
+- **设置页里有一张示意图**，把波轮按真实比例画出来并标出每个键的用途，配色跟随当前设置
+- **点按钮不会立刻缩回**，方便连着点好几下；停手超过设定时长（默认 3 秒，可在设置页调）
+  才自动缩回，并按当时位置**停靠到最近的左／右边缘**
+- 悬浮球可**拖动**到屏幕任意位置；**旋转屏幕**后自动重新停靠，不会跑到屏幕外
+- **记住位置**：停在哪一侧、离顶部多远都会存下来，下次启动回到原位
+- **控制对象以前台 App 为准**：前台在播视频就控制视频，否则才控制后台音乐
+- 按键有**震动反馈**（可在设置页关）
+- 缺「通知使用权」或「使用情况访问」时，波轮的**齿轮键会变橙色**提醒，不让功能静默降级
+- 中间是**固定的播放/暂停组合图标**，不假装知道当前状态（原因见下方「实现要点」）
+
+## 环境要求
+
+- Android Studio（推荐 Ladybug 2024.2 或更新版本）
+- 或命令行：JDK 17 + Android SDK（platform 34、build-tools 34）+ Gradle 8.7
+- 目标设备：Android 7.0（API 24）及以上
+
+## 构建 APK
+
+### 方式一：Android Studio（推荐）
+
+1. 打开 Android Studio → **File ▸ Open**，选择本 `VideoNext` 文件夹。
+2. 等待 Gradle 同步完成（首次会自动下载 Gradle 8.7 与 Android SDK 组件，需要联网）。
+   > 说明：本工程只含 `gradle-wrapper.properties`，未包含 `gradle-wrapper.jar`。
+   > Android Studio 的同步不依赖该 jar，直接打开即可；只有命令行 `./gradlew` 才需要它。
+3. 菜单 **Build ▸ Build Bundle(s) / APK(s) ▸ Build APK(s)**。
+4. 完成后点击弹窗里的 **locate**，APK 位于：
+   `app/build/outputs/apk/debug/app-debug.apk`
+
+### 方式二：命令行（一键脚本）
+
+```bash
+bash build-apk.sh
+```
+
+脚本是幂等的：缺什么装什么（Android 命令行工具、platform 34、build-tools 34、Gradle 8.7），
+已装好的会跳过，最后执行 `assembleRelease`。默认装到 `~/Library/Android/sdk` 与 `~/gradle`，
+可用 `ANDROID_HOME` / `GRADLE_HOME` 覆盖。需要外网，国内网络先 `export HTTPS_PROXY=...`。
+
+> 为什么不用 `./gradlew`：本工程只含 `gradle-wrapper.properties`，没有 `gradlew` 脚本和
+> `gradle-wrapper.jar`，所以 wrapper 用不了，脚本直接调用 Gradle 8.7 二进制。
+> 另外 Homebrew 的 `gradle` 现在是 9.x，与本工程的 AGP 8.5.2 不兼容，必须用 8.7。
+
+### 正式签名
+
+`app/build.gradle` 的 `signingConfigs.release` 会从项目根目录的 `keystore.properties`
+读取凭据（该文件和 `keystore/` 都已在 `.gitignore` 中排除）：
+
+```
+storeFile=keystore/videonext-release.jks
+storePassword=<密码>
+keyAlias=videonext
+keyPassword=<密码>
+```
+
+`storeFile` 相对项目根目录，也可以写绝对路径。
+
+**keystore 请务必另行备份**（如密码管理器）。丢失后该应用无法再发布可覆盖安装的升级包。
+产出：`app/build/outputs/apk/release/app-release.apk`。
+
+## 安装
+
+到 [Releases](../../releases) 下载 `VideoNext-<版本>-release.apk`，传到手机点击安装
+（需允许“安装未知来源应用”）。APK 已用正式证书签名，可直接安装、可覆盖升级。
+
+## 使用
+
+**点应用图标**：若已授予悬浮窗权限，会直接回到桌面并放出悬浮球，**不会先进设置页**。
+要进设置页，点悬浮球展开波轮 → 按**上方的齿轮**。
+
+首次安装（还没授权时）才会显示设置页，按顺序开三项权限即可。
+
+## 权限说明
+
+| 权限 | 是否必须 | 用途 |
+| --- | --- | --- |
+| 悬浮窗（SYSTEM_ALERT_WINDOW） | 必须 | 在其他应用上层显示悬浮球 |
+| 通知使用权（NotificationListener） | 推荐 | 读取媒体会话，精确控制正在播放的 App |
+| 使用情况访问（PACKAGE_USAGE_STATS） | 推荐 | 判断前台是哪个 App，让前台视频优先于后台音乐受控 |
+| 前台服务 / 通知（FOREGROUND_SERVICE 等） | 必须 | 让悬浮球常驻后台不被系统回收 |
+
+> 「使用情况访问」是特殊权限，要在 **系统设置 → 应用 → 特殊应用权限 → 使用情况访问** 里手动打开，
+> 不是安装时的弹窗。不开也能用，但只能控制后台正在播放的音乐；开了之后前台视频才会优先。
+
+## 设置项
+
+设置页里可以调：
+
+- **底色**：黑 / 白 / 红 / 橙 / 黄 / 绿 / 青 / 蓝 / 紫 / 品红 / 灰，共 11 种。
+  **收起后的小圆和展开的圆盘用的是同一个底色**，改颜色两边一起变
+- **透明度**：100% / 85% / 70% / 50%（作用在圆盘和收起态小圆的底色上，
+  透明一点能让它更好地融进画面）
+
+> 图标颜色**不用选**：按底色的 WCAG 相对亮度自动取黑或白，取的是对比度更高的一侧。
+> 比如橙色底取深色图标（8.7:1），如果凭直觉用白图标只有 2.4:1，会发糊。
+> 所以「不管选什么颜色都看得清」是算出来的，不是挑出来的。
+- **收起后单击小圆是**：下一首 / 播放暂停 / 上一首（默认下一首），图标和配色跟着变
+- **展开后多久自动缩回**：2 / 3 / 5 / 10 秒、不自动缩回（默认 3 秒）
+- **按键震动**：开关
+
+都存本地（SharedPreferences），改完**立刻**对正在运行的悬浮球生效，不用重启。
+
+另有「后台保活」一节：国产 ROM 清后台会杀掉悬浮球且不会自动恢复，那里有一个按钮
+直接跳到本应用的系统详情页，方便加**自启动**和**电池优化白名单**。
+
+## 常见问题
+
+- **悬浮球不显示**：确认已授予悬浮窗权限。
+- **按了键控制的是后台音乐，不是前台的抖音**：授予「使用情况访问」后才会以前台 App 为准。
+- **点了没反应**：目标 App 未暴露媒体会话，且不响应媒体按键；或未授予通知使用权。
+- **抖音的播放/暂停图标不跟随**：抖音等短视频应用的媒体会话状态永远是 `STOPPED`，从不报告真实
+  播放状态；此时图标按你的操作切换（按了暂停就显示播放），而不是读它的状态。
+- **悬浮球自动消失**：国产 ROM（小米/华为/OPPO/vivo 等）的省电策略。请到系统设置里把
+  VideoNext 加入**自启动**与**后台白名单**，并允许“后台弹出界面”。
+- **带 DRM 版权保护的应用**（部分付费视频 App）可能拒绝外部媒体控制，这是系统限制。
+
+## 实现要点（给后来人）
+
+选控制对象时**不能按播放状态筛**：后台音乐长期处于 `PLAYING`，而抖音这类应用的会话状态恒为
+`STOPPED`，且系统会把媒体按键路由给音乐。所以 `MediaControls` 先判断前台是哪个 App 再直取它的会话。
+另外抖音会不断新建 MediaSession 而旧的残留，同包会话可能有多个，因此指令是**发给该前台包的全部会话**，
+死的会忽略、活的会响应。
+
+播放/暂停键为什么不显示当前状态：Android 的 `MediaController` **没有「切换」这条指令**，只有明确的
+`play()` 和 `pause()`，所以按下去时内部必须二选一（优先用真实状态，不报状态的用自己记的开关）。
+既然这个状态本来就可能不准，图标索性做成**固定的「▶‖」组合图**，不假装知道——顺带把「每秒轮询一次
+播放状态」那套整个删掉了，省掉常驻定时器。
+
+## 目录结构
+
+```
+VideoNext/
+├── settings.gradle
+├── build.gradle
+├── gradle.properties
+├── gradle/wrapper/gradle-wrapper.properties
+└── app/
+    ├── build.gradle
+    ├── proguard-rules.pro
+    └── src/main/
+        ├── AndroidManifest.xml
+        ├── java/com/videonext/floatcontrol/
+        │   ├── MainActivity.java              设置 / 权限引导页
+        │   ├── FloatingService.java           悬浮球前台服务（收起态 + 波轮）
+        │   ├── WheelLayout.java               波轮布局（中心 + 上下左右四键）
+        │   ├── DraggableLayout.java           可拖动的悬浮窗根布局
+        │   ├── MediaControls.java             媒体控制（前台优先选路 + 状态三态）
+        │   ├── ForegroundApp.java             前台应用探测（UsageStatsManager）
+        │   ├── Prefs.java                     本地设置
+        │   └── MediaNotificationListener.java 供读取媒体会话的通知监听服务
+        └── res/
+            ├── layout/activity_main.xml
+            ├── drawable/                      矢量图标
+            ├── mipmap-*/                      启动图标
+            └── values/                        字符串与主题
+```

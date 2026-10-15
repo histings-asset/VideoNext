@@ -1,0 +1,22 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/.claude
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# 正式签名密钥 —— 绝不入库
+/keystore
+/keystore.properties
+*.jks
+*.keystore
+
+# 构建产物
+/dist
+/build-apk.log

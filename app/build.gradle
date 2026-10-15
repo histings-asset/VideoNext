@@ -1,0 +1,48 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.videonext.floatcontrol'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.videonext.floatcontrol"
+        minSdk 24
+        targetSdk 34
+        versionCode 15
+        versionName "1.14"
+    }
+
+    // 正式签名：凭据从根目录的 keystore.properties 读取（该文件不入库）。
+    signingConfigs {
+        release {
+            def propsFile = rootProject.file('keystore.properties')
+            if (propsFile.exists()) {
+                def props = new Properties()
+                propsFile.withInputStream { props.load(it) }
+                storeFile rootProject.file(props['storeFile'])
+                storePassword props['storePassword']
+                keyAlias props['keyAlias']
+                keyPassword props['keyPassword']
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+// 本应用全部使用 Android 框架自带 API，不需要任何第三方依赖。
+dependencies {
+}

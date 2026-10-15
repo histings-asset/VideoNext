@@ -1,0 +1,4 @@
+// 顶层构建文件：仅声明 Android Gradle 插件版本，供 app 模块使用。
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+}

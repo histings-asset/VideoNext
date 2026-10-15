@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VideoNext</string>
+    <string name="subtitle">悬浮媒体控制器</string>
+
+    <string name="section_permissions">所需权限</string>
+    <string name="overlay_label">① 悬浮窗权限（必须）</string>
+    <string name="listener_label">② 通知使用权（推荐）</string>
+    <string name="usage_label">③ 使用情况访问（推荐）</string>
+    <string name="btn_overlay">去开启悬浮窗权限</string>
+    <string name="btn_listener">去开启通知使用权</string>
+    <string name="btn_usage">去开启使用情况访问</string>
+    <string name="btn_start">开启悬浮球</string>
+    <string name="btn_stop">关闭悬浮球</string>
+
+    <string name="auto_collapse_label">展开后多久自动缩回</string>
+    <string-array name="auto_collapse_options">
+        <item>2 秒</item>
+        <item>3 秒</item>
+        <item>5 秒</item>
+        <item>10 秒</item>
+        <item>不自动缩回</item>
+    </string-array>
+
+    <string name="haptics_label">按键震动</string>
+
+    <string name="collapsed_action_label">收起后单击小圆是</string>
+    <string-array name="collapsed_action_options">
+        <item>下一首</item>
+        <item>播放 / 暂停</item>
+        <item>上一首</item>
+    </string-array>
+
+    <string name="theme_label">底色</string>
+    <string-array name="color_options">
+        <item>黑</item>
+        <item>白</item>
+        <item>红</item>
+        <item>橙</item>
+        <item>黄</item>
+        <item>绿</item>
+        <item>青</item>
+        <item>蓝</item>
+        <item>紫</item>
+        <item>品红</item>
+        <item>灰</item>
+    </string-array>
+    <string name="theme_note">图标颜色不用选：按底色的明暗自动取黑或白，保证在任何底色上都看得清。</string>
+
+    <string name="guide_label">每个键是做什么的</string>
+
+    <string name="alpha_label">透明度</string>
+    <string-array name="alpha_options">
+        <item>100%（不透明）</item>
+        <item>85%</item>
+        <item>70%</item>
+        <item>50%（很透）</item>
+    </string-array>
+
+    <string name="keepalive_label">后台保活（重要）</string>
+    <string name="keepalive_tips">国产 ROM 清理后台时会杀掉悬浮球，且不会自动恢复。请在系统设置里把 VideoNext 加入「自启动」和「电池优化白名单」，并允许「后台弹出界面」。</string>
+    <string name="btn_keepalive">打开本应用的系统设置</string>
+
+    <string name="status_granted">已授权</string>
+    <string name="status_not_granted">未授权</string>
+    <string name="need_overlay">请先授予「悬浮窗」权限</string>
+    <string name="open_settings_failed">无法打开系统设置页，请手动到系统设置中授权</string>
+
+    <string name="notif_channel_name">悬浮控制</string>
+    <string name="notif_channel_desc">保持悬浮球在后台运行</string>
+    <string name="notif_title">VideoNext 悬浮球已开启</string>
+    <string name="notif_text">点按可回到设置页关闭悬浮球</string>
+
+    <string name="hint_long_press">单击切歌 · 长按小圆展开波轮</string>
+
+    <string name="tips">使用说明\n\n1. 桌面上那个小圆就是悬浮球。长按 = 展开成波轮；单击 = 在本页设定的动作（默认下一首）。\n2. 波轮按键：上 = 设置，右 = 下一首，下 = 播放/暂停，左 = 上一首；中间的圆键没有图标，单击 = 收起（缩回小圆）。\n3. 长按中间的圆键 1 秒 = 退出 App。按到 0.6 秒时会先震一下预告，感觉到震动就松手，不会误退。\n4. 点按钮不会立刻缩回，方便连着点好几下；停手超过设定时长（在本页可调，默认 3 秒）才自动缩回，并按当时位置停靠到最近的左／右边缘。\n5. 悬浮球可拖动到屏幕任意位置；旋转屏幕后会自动重新停靠，不会跑到屏幕外。停靠的位置会被记住。\n6. 授予「使用情况访问」后，控制对象以当前前台的 App 为准：前台在播视频就控制视频，回到桌面或前台应用没有播放内容时才控制后台音乐。不授予则只能控制后台正在播放的音乐。\n7. 中间的播放/暂停是固定图标，不显示当前状态：抖音这类应用根本不报状态，显示任何具体图标都可能是假的。\n8. 建议在系统设置里把本应用加入「自启动/后台白名单」，避免被省电策略杀掉。\n9. 带版权保护（DRM）的应用可能不响应媒体控制，属系统限制。</string>
+</resources>
