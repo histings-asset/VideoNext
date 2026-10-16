@@ -144,7 +144,24 @@ public final class MediaControls {
         return foreground != null && foreground.equals(controller.getPackageName());
     }
 
+    /**
+     * 手势模式是否对当前前台应用生效。
+     *
+     * 刻意要求「用户把该 App 明确加进列表」——盲滑很危险，
+     * 在微信、桌面这类地方划一下可能触发意料之外的操作。
+     */
+    private static boolean useGestures(Context context) {
+        if (!Prefs.gestureMode(context) || !GestureAccessibilityService.isReady()) {
+            return false;
+        }
+        String foreground = ForegroundApp.current(context);
+        return foreground != null && Prefs.gesturePackages(context).contains(foreground);
+    }
+
     public static void next(Context context) {
+        if (useGestures(context) && GestureAccessibilityService.swipe(context, true)) {
+            return;
+        }
         if (dispatch(context, PlaybackState.ACTION_SKIP_TO_NEXT)) {
             return;
         }
@@ -152,6 +169,9 @@ public final class MediaControls {
     }
 
     public static void previous(Context context) {
+        if (useGestures(context) && GestureAccessibilityService.swipe(context, false)) {
+            return;
+        }
         if (dispatch(context, PlaybackState.ACTION_SKIP_TO_PREVIOUS)) {
             return;
         }
@@ -159,6 +179,9 @@ public final class MediaControls {
     }
 
     public static void playPause(Context context) {
+        if (useGestures(context) && GestureAccessibilityService.tapCenter(context)) {
+            return;
+        }
         List<MediaController> all = targets(context);
         if (all.isEmpty()) {
             sendKey(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
@@ -221,9 +244,16 @@ public final class MediaControls {
         return toggleAssumedPlaying;
     }
 
+    /**
+     * 目标会话是否可能处理这个动作。
+     *
+     * 会话**没上报状态**时（红果免费漫剧这类应用，state 恒为 null、能力位也就无从判断）
+     * 一律放行、直接试着发：要是不支持，对方自己会忽略；而拦下来一定什么都不发生。
+     * 只有拿到状态、且明确不支持时，才拦下并让调用方走媒体按键兜底。
+     */
     private static boolean supports(MediaController controller, long action) {
         PlaybackState state = controller.getPlaybackState();
-        return state != null && (state.getActions() & action) != 0;
+        return state == null || (state.getActions() & action) != 0;
     }
 
     private static void sendKey(Context context, int keyCode) {

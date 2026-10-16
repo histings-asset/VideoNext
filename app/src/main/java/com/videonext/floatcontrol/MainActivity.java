@@ -20,6 +20,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Set;
+
 /**
  * 设置页：引导用户授予三项权限，并控制悬浮球开关。
  *
@@ -86,6 +88,81 @@ public class MainActivity extends Activity {
 
         Button keepaliveButton = findViewById(R.id.keepalive_button);
         keepaliveButton.setOnClickListener(v -> openAppDetailsSettings());
+
+        setUpGestureSection();
+    }
+
+    /** 手势模式：开关 + 无障碍入口 + 生效 App 列表。 */
+    private void setUpGestureSection() {
+        CheckBox gesture = findViewById(R.id.gesture_checkbox);
+        gesture.setChecked(Prefs.gestureMode(this));
+        gesture.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> Prefs.setGestureMode(this, isChecked));
+
+        findViewById(R.id.gesture_settings_button)
+                .setOnClickListener(v -> openAccessibilitySettings());
+        findViewById(R.id.gesture_add_button)
+                .setOnClickListener(v -> addRecentAppToGestures());
+        findViewById(R.id.gesture_clear_button).setOnClickListener(v -> {
+            Prefs.clearGesturePackages(this);
+            refreshGestureList();
+        });
+    }
+
+    private void openAccessibilitySettings() {
+        try {
+            startActivity(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+        } catch (Throwable t) {
+            Toast.makeText(this, R.string.open_settings_failed, Toast.LENGTH_LONG).show();
+        }
+    }
+
+    /**
+     * 把「打开本页之前用的那个 App」加进手势列表。
+     *
+     * 用 recentOther 而不是 current：本页一打开，前台就变成我们自己了。
+     */
+    private void addRecentAppToGestures() {
+        String packageName = ForegroundApp.recentOther(this);
+        if (packageName == null) {
+            Toast.makeText(this, R.string.gesture_add_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+        Prefs.addGesturePackage(this, packageName);
+        Toast.makeText(this, getString(R.string.gesture_added, labelOf(packageName)),
+                Toast.LENGTH_SHORT).show();
+        refreshGestureList();
+    }
+
+    private void refreshGestureList() {
+        TextView list = findViewById(R.id.gesture_list);
+        Set<String> packages = Prefs.gesturePackages(this);
+        if (packages.isEmpty()) {
+            list.setText(R.string.gesture_list_empty);
+            return;
+        }
+        StringBuilder text = new StringBuilder(getString(R.string.gesture_list_title));
+        for (String packageName : packages) {
+            text.append("\n  · ").append(labelOf(packageName));
+        }
+        list.setText(text.toString());
+    }
+
+    private void refreshGestureStatus() {
+        TextView status = findViewById(R.id.gesture_status);
+        boolean ready = GestureAccessibilityService.isReady();
+        status.setText(ready ? R.string.gesture_status_on : R.string.gesture_status_off);
+        status.setTextColor(ready ? Color.parseColor("#2E7D32") : Color.parseColor("#C62828"));
+    }
+
+    /** 包名换成应用名，取不到就显示包名本身。 */
+    private String labelOf(String packageName) {
+        try {
+            PackageManager pm = getPackageManager();
+            return pm.getApplicationLabel(pm.getApplicationInfo(packageName, 0)).toString();
+        } catch (Throwable t) {
+            return packageName;
+        }
     }
 
     /** 收起态单击小圆做什么。改完立刻对正在运行的悬浮球生效。 */
@@ -206,6 +283,9 @@ public class MainActivity extends Activity {
                 : Color.parseColor("#C62828"));
 
         toggleButton.setText(FloatingService.isRunning ? R.string.btn_stop : R.string.btn_start);
+
+        refreshGestureStatus();
+        refreshGestureList();
     }
 
     private boolean canDrawOverlays() {

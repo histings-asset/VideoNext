@@ -10,8 +10,8 @@ android {
         applicationId "com.videonext.floatcontrol"
         minSdk 24
         targetSdk 34
-        versionCode 15
-        versionName "1.14"
+        versionCode 17
+        versionName "1.16"
     }
 
     // 正式签名：凭据从根目录的 keystore.properties 读取（该文件不入库）。

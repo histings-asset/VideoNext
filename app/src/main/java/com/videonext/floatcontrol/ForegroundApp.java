@@ -24,8 +24,22 @@ public final class ForegroundApp {
     private ForegroundApp() {
     }
 
+    /**
+     * 最近使用过的、但**不是本应用**的包名。
+     *
+     * 设置页一打开，前台就变成了我们自己，所以「把刚才那个 App 加进手势列表」不能直接用
+     * current()——那会加到本应用头上。这里跳过自身，取到的就是打开设置页之前的那个 App。
+     */
+    public static String recentOther(Context context) {
+        return mostRecent(context, context.getPackageName());
+    }
+
     /** 前台应用的包名；判断不出来时返回 null。 */
     public static String current(Context context) {
+        return mostRecent(context, null);
+    }
+
+    private static String mostRecent(Context context, String excludePackage) {
         try {
             UsageStatsManager usm =
                     (UsageStatsManager) context.getSystemService(Context.USAGE_STATS_SERVICE);
@@ -41,6 +55,9 @@ public final class ForegroundApp {
             String best = null;
             long bestTime = 0L;
             for (UsageStats s : stats) {
+                if (excludePackage != null && excludePackage.equals(s.getPackageName())) {
+                    continue;
+                }
                 if (s.getLastTimeUsed() > bestTime) {
                     bestTime = s.getLastTimeUsed();
                     best = s.getPackageName();

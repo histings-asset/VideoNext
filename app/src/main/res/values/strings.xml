@@ -57,6 +57,24 @@
         <item>50%（很透）</item>
     </string-array>
 
+    <!-- 手势模式（无障碍） -->
+    <string name="gesture_service_label">VideoNext 手势模式</string>
+    <string name="gesture_service_summary">只注入屏幕手势，不读取屏幕内容</string>
+    <string name="gesture_service_desc">用于控制那些不接受媒体接口、只认屏幕手势的应用（例如红果免费漫剧、今日头条）。本服务不会读取你的屏幕内容。</string>
+
+    <string name="gesture_label">手势模式</string>
+    <string name="gesture_tips">红果、头条这类 App 不响应任何媒体接口（连媒体按键都不理），只认屏幕手势。开启后，下面列表里的 App 会用「在屏幕上划一下」来切下一个。广告仍然跳不过去，那是红果自己锁死的。</string>
+    <string name="gesture_toggle">启用手势模式</string>
+    <string name="gesture_status_on">无障碍服务：已开启</string>
+    <string name="gesture_status_off">无障碍服务：未开启</string>
+    <string name="btn_gesture_settings">去开启无障碍服务</string>
+    <string name="btn_add_current">把刚才用的那个 App 加进列表</string>
+    <string name="gesture_added">已加入：%1$s</string>
+    <string name="gesture_add_failed">读不到刚才的前台应用。请先切到目标 App，再通过悬浮球进本页。</string>
+    <string name="btn_clear_list">清空列表</string>
+    <string name="gesture_list_empty">列表为空，手势模式不会对任何 App 生效</string>
+    <string name="gesture_list_title">生效的 App：</string>
+
     <string name="keepalive_label">后台保活（重要）</string>
     <string name="keepalive_tips">国产 ROM 清理后台时会杀掉悬浮球，且不会自动恢复。请在系统设置里把 VideoNext 加入「自启动」和「电池优化白名单」，并允许「后台弹出界面」。</string>
     <string name="btn_keepalive">打开本应用的系统设置</string>

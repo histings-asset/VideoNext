@@ -58,5 +58,23 @@
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
+
+        <!--
+          手势模式：只往屏幕上注入手势，不读取屏幕内容（见 res/xml/gesture_service.xml）。
+          用于控制那些不接受任何媒体接口、只认屏幕手势的 App（红果、头条等）。
+          属于可选功能，用户不开就完全不工作。
+        -->
+        <service
+            android:name=".GestureAccessibilityService"
+            android:exported="true"
+            android:label="@string/gesture_service_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/gesture_service" />
+        </service>
     </application>
 </manifest>

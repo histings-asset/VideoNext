@@ -3,6 +3,9 @@ package com.videonext.floatcontrol;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /** 本应用的本地设置。 */
 public final class Prefs {
 
@@ -17,6 +20,8 @@ public final class Prefs {
     private static final String KEY_HAS_EXPANDED = "has_expanded";
     private static final String KEY_COLOR_INDEX = "theme_color_index";
     private static final String KEY_ALPHA = "theme_alpha";
+    private static final String KEY_GESTURE_MODE = "gesture_mode";
+    private static final String KEY_GESTURE_PACKAGES = "gesture_packages";
 
     /** 收起态单击的动作。 */
     public static final int ACTION_NEXT = 0;
@@ -171,6 +176,34 @@ public final class Prefs {
             }
         }
         return 0;
+    }
+
+    // ------------------------------------------------------------------
+    // 手势模式
+    // ------------------------------------------------------------------
+
+    public static boolean gestureMode(Context context) {
+        return store(context).getBoolean(KEY_GESTURE_MODE, false);
+    }
+
+    public static void setGestureMode(Context context, boolean enabled) {
+        store(context).edit().putBoolean(KEY_GESTURE_MODE, enabled).apply();
+    }
+
+    /** 手势模式生效的 App 包名。刻意不用默认值——默认必须是「一个都不生效」。 */
+    public static Set<String> gesturePackages(Context context) {
+        Set<String> stored = store(context).getStringSet(KEY_GESTURE_PACKAGES, null);
+        return (stored == null) ? new HashSet<String>() : new HashSet<String>(stored);
+    }
+
+    public static void addGesturePackage(Context context, String packageName) {
+        Set<String> packages = gesturePackages(context);
+        packages.add(packageName);
+        store(context).edit().putStringSet(KEY_GESTURE_PACKAGES, packages).apply();
+    }
+
+    public static void clearGesturePackages(Context context) {
+        store(context).edit().remove(KEY_GESTURE_PACKAGES).apply();
     }
 
     /** 供服务监听设置变化，改了设置立刻生效、不用重启。 */
